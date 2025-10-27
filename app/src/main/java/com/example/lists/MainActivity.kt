@@ -36,10 +36,10 @@ import com.example.lists.ComposeActivity.Companion.EXTRA_TEXT
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 
 class MainActivity : ComponentActivity() {
     private val chiuitListState = mutableStateOf(ChiuitStore.getAllData())
-
 
     private var resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -52,16 +52,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { HomeScreen() }
-
     }
 
     @Composable
     private fun HomeScreen() {
+        val chiuitList by remember { chiuitListState }
+
         Surface(color = Color.White) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // TODO 5: Use a vertical list that composes and displays only the visible items.
-                // TODO 6: Make use of Compose DSL to describe the content of the list and make sure
-                // to instantiate a [ChiuitListItem] for every item in [chiuitListState.value].
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 80.dp)
+                ) {
+                    // TODO 6: Make use of Compose DSL to describe the content of the list and make sure
+                    // to instantiate a [ChiuitListItem] for every item in [chiuitListState.value].
+                    items(chiuitList) { chiuit ->
+                        ChiuitListItem(chiuit = chiuit)
+                    }
+                }
+
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -106,9 +117,9 @@ class MainActivity : ComponentActivity() {
     }
 
     /*
-    Defines text sharing/sending *implicit* intent, opens the application chooser menu,
-    and starts a new activity which supports sharing/sending text.
-     */
+   Defines text sharing/sending *implicit* intent, opens the application chooser menu,
+   and starts a new activity which supports sharing/sending text.
+    */
     private fun shareChiuit(text: String) {
         val sendIntent = Intent().apply {
             // Configure intent for text sharing
@@ -126,24 +137,22 @@ class MainActivity : ComponentActivity() {
     Defines an *explicit* intent which will be used to start ComposeActivity.
      */
     private fun composeChiuit() {
-            val intent = Intent(this, ComposeActivity::class.java).apply {
-                // Attach extra text data
-                putExtra(Intent.EXTRA_TEXT, "")
-                type = "text/plain"
-            }
+        val intent = Intent(this, ComposeActivity::class.java).apply {
+            // Attach extra text data
+            putExtra(Intent.EXTRA_TEXT, "")
+            type = "text/plain"
+        }
 
         resultLauncher.launch(intent)
-
-        // TODO 3: Start a new activity with the previously defined intent.
-
-
     }
 
     private fun setChiuitText(resultText: String?) {
         // TODO 7: Check if text is not null or empty, instantiate a new chiuit object
-
         //  then add it to the [chiuitListState.value].
-
+        if (!resultText.isNullOrEmpty()) {
+            val newChiuit = Chiuit(description = resultText)
+            chiuitListState.value = chiuitListState.value + newChiuit
+        }
     }
 
     @Preview(showBackground = true)
@@ -152,5 +161,3 @@ class MainActivity : ComponentActivity() {
         HomeScreen()
     }
 }
-
-

@@ -1,4 +1,3 @@
-
 package com.example.lists
 
 import android.app.Activity
@@ -33,14 +32,12 @@ class ComposeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent { ComposeScreen() }
     }
 
     @Composable
     private fun ComposeScreen() {
-        var text by remember { mutableStateOf("")}
-
+        var text by remember { mutableStateOf("") }
 
         Surface(color = Color.White) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -51,32 +48,38 @@ class ComposeActivity : ComponentActivity() {
                         .padding(16.dp),
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text(text) }
+                    label = { Text("Enter your chiuit") },
+                    placeholder = { Text("Type your text here...") }
                 )
                 FloatingActionButton(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(16.dp),
-                    onClick = { onEditClick(text) },
+                    onClick = {
+                        if (text.isNotEmpty()) {
+                            addChiuit(text)
+                        }
+                    },
                 ) {
                     Icon(
                         Icons.Filled.Check,
-                        "des"
+                        "Save chiuit"
                     )
                 }
             }
         }
     }
 
-    private fun onEditClick(text: String) {
-        // Prepare the intent to be returned as result.
+    private fun addChiuit(text: String) {
+        // Create an intent with the text
         val returnIntent = Intent().apply {
             putExtra(EXTRA_TEXT, text)
         }
 
-        // Mark the result as success and attach text data.
+        // Set the result to send back to MainActivity
         setResult(Activity.RESULT_OK, returnIntent)
-        // Finish the activity, we do not need it anymore after we got the text input.
+
+        // Finish the activity to return to MainActivity
         finish()
     }
 
@@ -89,5 +92,4 @@ class ComposeActivity : ComponentActivity() {
     companion object {
         const val EXTRA_TEXT = "extra_text"
     }
-
 }
